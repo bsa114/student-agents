@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Помощники для учёбы</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -134,6 +135,8 @@ textarea::placeholder{color:var(--ink-soft);}
 .act-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink-soft);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:border-color .15s,color .15s,background .15s;}
 .act-btn:hover{border-color:var(--agent);color:var(--agent);background:var(--agent-soft);}
 .act-btn.done{color:var(--agent);border-color:var(--agent);}
+.row.user .msg-actions{justify-content:flex-end;border-top:none;padding-top:6px;margin-top:6px;}
+.bubble.user{position:relative;}
 .hint{max-width:720px;margin:8px auto 0;font-size:11px;color:var(--ink-soft);text-align:center;}
 </style>
 </head>
@@ -268,11 +271,17 @@ function useChip(el){input.value=el.textContent.trim();send();}
 function clearHero(){const h=document.getElementById("hero");if(h)h.remove();}
 function scrollDown(){main.scrollTop=main.scrollHeight;}
 
-function addUser(text){
+function addUser(text, rawForCopy){
   clearHero();
   const row=document.createElement("div");row.className="row user";
   const b=document.createElement("div");b.className="bubble user";b.textContent=text;
-  row.appendChild(b);wrap.appendChild(row);scrollDown();
+  row.appendChild(b);
+  // кнопка копирования своего запроса (копируем исходный текст без пометки про файл)
+  const toCopy = (rawForCopy!==undefined && rawForCopy!==null) ? rawForCopy : text;
+  if(toCopy && toCopy.trim()){
+    addCopyButton(b, toCopy);
+  }
+  wrap.appendChild(row);scrollDown();
 }
 function addBot(typing){
   const a=AGENTS[current];
@@ -439,7 +448,8 @@ async function send(){
   // показываем в чате, что отправил пользователь
   let shownText=text;
   if(attachedName) shownText=(text?text+"  ":"")+"📎 "+attachedName;
-  addUser(shownText||"📎 "+attachedName);
+  // копируем именно то, что человек написал (без служебной пометки про файл)
+  addUser(shownText||"📎 "+attachedName, text);
 
   input.value="";input.style.height="auto";
   const hadFile=!!attachedName; clearFile();
