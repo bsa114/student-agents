@@ -117,6 +117,15 @@ textarea::placeholder{color:var(--ink-soft);}
 .file-chip .fstatus{color:var(--ink-soft);font-size:12px;}
 .file-chip .fx{cursor:pointer;color:var(--ink-soft);font-weight:700;padding:0 4px;}
 .file-chip .fx:hover{color:var(--agent);}
+.drop-overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
+  background:rgba(124,58,237,.10);backdrop-filter:blur(2px);pointer-events:none;}
+.drop-overlay.show{display:flex;}
+.drop-card{background:var(--panel);border:2px dashed var(--agent);border-radius:18px;
+  padding:26px 34px;display:flex;flex-direction:column;align-items:center;gap:10px;
+  box-shadow:0 12px 40px rgba(0,0,0,.12);color:var(--ink);}
+.drop-card svg{width:34px;height:34px;color:var(--agent);}
+.drop-card .big{font-family:'Unbounded';font-weight:500;font-size:16px;}
+.drop-card .sub{font-size:12.5px;color:var(--ink-soft);}
 .send:active{transform:scale(.92);}
 .send:disabled{opacity:.4;cursor:default;}
 .excel-btn{display:inline-flex;align-items:center;gap:7px;margin:4px 0 6px;padding:8px 13px;border:1px solid var(--line);border-radius:11px;background:var(--panel-2);color:var(--agent);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s;}
@@ -438,9 +447,35 @@ async function send(){
   finally{busy=false;sendBtn.disabled=false;scrollDown();input.focus();}
 }
 
+
+// ===== Перетаскивание файлов (drag & drop) =====
+(function(){
+  const overlay=document.getElementById("dropOverlay");
+  let depth=0;
+  function hasFiles(e){ return e.dataTransfer && Array.from(e.dataTransfer.types||[]).includes("Files"); }
+  window.addEventListener("dragenter",e=>{ if(!hasFiles(e))return; e.preventDefault(); depth++; overlay.classList.add("show"); });
+  window.addEventListener("dragover",e=>{ if(!hasFiles(e))return; e.preventDefault(); });
+  window.addEventListener("dragleave",e=>{ if(!hasFiles(e))return; depth--; if(depth<=0){depth=0;overlay.classList.remove("show");} });
+  window.addEventListener("drop",e=>{
+    if(!hasFiles(e))return;
+    e.preventDefault(); depth=0; overlay.classList.remove("show");
+    const file=e.dataTransfer.files && e.dataTransfer.files[0];
+    if(!file)return;
+    // переиспользуем существующий обработчик: подставляем файл во input и зовём ту же логику
+    onFilePicked({ target: { files: [file] } });
+  });
+})();
+
 applyTheme(AGENTS[current]);
 renderTabs();
 renderHero();
 </script>
+<div class="drop-overlay" id="dropOverlay">
+  <div class="drop-card">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+    <div class="big">Отпусти файл сюда</div>
+    <div class="sub">фото, скан, docx или PDF</div>
+  </div>
+</div>
 </body>
 </html>
