@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Экзаменатор</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #f7f7f8;
+      color: #1a1a1a;
+    }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .sub { color: #666; margin-bottom: 20px; font-size: 14px; }
+    #answer {
+      background: #fff;
+      border: 1px solid #e3e3e6;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 80px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .placeholder { color: #999; }
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 15px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 70px;
+    }
+    button {
+      margin-top: 10px;
+      background: #2d6cdf;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    button:disabled { background: #9bb8e8; cursor: default; }
+  </style>
+</head>
+<body>
+  <h1>Экзаменатор</h1>
+  <div class="sub">Готовлю к экзамену: разберу билет, объясню тему, проверю готовность.</div>
+
+  <div id="answer"><span class="placeholder">Здесь появится ответ…</span></div>
+
+  <textarea id="message" placeholder="Например: разбери билет «Первый закон Ньютона»"></textarea>
+  <button id="send" onclick="send()">Спросить</button>
+
+  <script>
+    async function send() {
+      const input = document.getElementById("message");
+      const answer = document.getElementById("answer");
+      const button = document.getElementById("send");
+      const text = input.value.trim();
+      if (!text) return;
+
+      button.disabled = true;
+      answer.textContent = "Думаю…";
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text }),
+        });
+        const data = await res.json();
+        answer.textContent = data.reply || data.error || "Пустой ответ";
+      } catch (err) {
+        answer.textContent = "Не получилось связаться с сервером: " + err.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
