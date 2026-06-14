@@ -3,18 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Экзаменатор</title>
+<title>Помощники для учёбы</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
 <style>
 :root{
-  /* агент Экзаменатор — цвет индивидуальности */
   --agent: #f0561f;
   --agent-2: #ff7a3d;
   --agent-soft: rgba(240,86,31,.10);
-
   --bg: #fbfaf8;
   --bg-2: #ffffff;
   --panel: #ffffff;
@@ -30,55 +28,48 @@ html,body{height:100%;margin:0;}
 body{
   font-family:'Inter',-apple-system,system-ui,sans-serif;
   background:
-    radial-gradient(1100px 500px at 85% -10%, rgba(255,122,61,.10), transparent 60%),
-    radial-gradient(800px 500px at -5% 110%, rgba(240,86,31,.05), transparent 55%),
+    radial-gradient(1100px 500px at 85% -10%, var(--agent-soft), transparent 60%),
     var(--bg);
-  color:var(--ink);
-  display:flex;flex-direction:column;height:100dvh;
+  color:var(--ink);display:flex;flex-direction:column;height:100dvh;
+  transition:background .4s;
 }
 header{
   flex:none;display:flex;align-items:center;gap:13px;
-  padding:15px 22px;border-bottom:1px solid var(--line);
+  padding:13px 22px;border-bottom:1px solid var(--line);
   background:rgba(255,255,255,.72);backdrop-filter:blur(12px);
 }
 .badge{
-  width:42px;height:42px;border-radius:13px;flex:none;
+  width:40px;height:40px;border-radius:12px;flex:none;
   background:linear-gradient(135deg,var(--agent),var(--agent-2));
   display:grid;place-items:center;color:#fff;font-weight:700;
-  font-family:'Unbounded';font-size:19px;
-  box-shadow:0 6px 18px var(--agent-soft);
+  font-family:'Unbounded';font-size:18px;transition:background .4s;
 }
-.head h1{margin:0;font-family:'Unbounded';font-weight:700;font-size:16px;letter-spacing:-.01em;}
-.head p{margin:3px 0 0;font-size:12.5px;color:var(--ink-soft);}
+.head h1{margin:0;font-family:'Unbounded';font-weight:700;font-size:15px;letter-spacing:-.01em;}
+.head p{margin:2px 0 0;font-size:12px;color:var(--ink-soft);}
 .head .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3ddc84;margin-right:5px;vertical-align:middle;}
-main{flex:1;overflow-y:auto;padding:26px 16px;}
-.wrap{width:100%;max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
+.switcher{flex:none;display:flex;gap:7px;padding:10px 16px;border-bottom:1px solid var(--line);overflow-x:auto;background:var(--bg-2);}
+.tab{
+  flex:none;display:flex;align-items:center;gap:8px;cursor:pointer;
+  padding:8px 14px;border-radius:12px;border:1px solid var(--line);
+  background:var(--panel);font-size:13.5px;font-weight:500;color:var(--ink-soft);
+  transition:border-color .15s,color .15s,background .15s;white-space:nowrap;
+}
+.tab .ic{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;color:#fff;font-weight:700;font-family:'Unbounded';font-size:11px;}
+.tab.active{color:var(--ink);border-color:var(--tab-color);background:var(--tab-soft);}
+main{flex:1;overflow-y:auto;padding:24px 16px;}
+.wrap{width:100%;max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px;}
 .row{display:flex;gap:11px;align-items:flex-start;animation:rise .35s ease;}
 .row.user{justify-content:flex-end;}
 @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .mini{
   width:32px;height:32px;border-radius:10px;flex:none;
   background:linear-gradient(135deg,var(--agent),var(--agent-2));
-  display:grid;place-items:center;color:#fff;font-weight:700;
-  font-family:'Unbounded';font-size:13px;
+  display:grid;place-items:center;color:#fff;font-weight:700;font-family:'Unbounded';font-size:13px;transition:background .4s;
 }
-.bubble{
-  padding:14px 17px;line-height:1.62;font-size:15px;max-width:86%;
-  border-radius:var(--radius);word-wrap:break-word;overflow-wrap:anywhere;
-}
-.bubble.bot{
-  background:var(--panel);
-  border:1px solid var(--line);border-top-left-radius:6px;
-  box-shadow:0 1px 2px rgba(0,0,0,.03),0 10px 28px rgba(0,0,0,.04);
-}
-.bubble.user{
-  background:var(--user);border:1px solid #ffe2d4;
-  border-top-right-radius:6px;
-}
-.bubble.bot h1,.bubble.bot h2,.bubble.bot h3{
-  font-family:'Unbounded';font-size:14px;font-weight:500;
-  margin:16px 0 7px;color:var(--agent-2);letter-spacing:.01em;
-}
+.bubble{padding:14px 17px;line-height:1.62;font-size:15px;max-width:86%;border-radius:var(--radius);word-wrap:break-word;overflow-wrap:anywhere;}
+.bubble.bot{background:var(--panel);border:1px solid var(--line);border-top-left-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03),0 10px 28px rgba(0,0,0,.04);}
+.bubble.user{background:var(--user);border:1px solid var(--line);border-top-right-radius:6px;transition:background .4s;}
+.bubble.bot h1,.bubble.bot h2,.bubble.bot h3{font-family:'Unbounded';font-size:14px;font-weight:500;margin:16px 0 7px;color:var(--agent);letter-spacing:.01em;}
 .bubble.bot h1:first-child,.bubble.bot h2:first-child,.bubble.bot h3:first-child{margin-top:0;}
 .bubble.bot p{margin:9px 0;}
 .bubble.bot p:first-child{margin-top:0;}
@@ -87,33 +78,20 @@ main{flex:1;overflow-y:auto;padding:26px 16px;}
 .bubble.bot li{margin:5px 0;}
 .bubble.bot li::marker{color:var(--agent);}
 .bubble.bot strong{font-weight:600;color:#111;}
-.bubble.bot code{
-  background:var(--agent-soft);color:var(--agent-2);
-  padding:2px 7px;border-radius:7px;font-size:13.5px;
-  font-family:ui-monospace,Menlo,monospace;
-}
+.bubble.bot code{background:var(--agent-soft);color:var(--agent);padding:2px 7px;border-radius:7px;font-size:13.5px;font-family:ui-monospace,Menlo,monospace;}
 .bubble.bot pre{background:var(--panel-2);border:1px solid var(--line);padding:13px;border-radius:12px;overflow-x:auto;}
 .bubble.bot pre code{background:none;color:var(--ink);padding:0;}
 .bubble.bot table{border-collapse:collapse;width:100%;margin:11px 0;font-size:13.5px;}
 .bubble.bot th,.bubble.bot td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top;}
-.bubble.bot th{background:var(--agent-soft);color:var(--agent-2);font-weight:600;font-family:'Inter';}
+.bubble.bot th{background:var(--agent-soft);color:var(--agent);font-weight:600;font-family:'Inter';}
 .bubble.bot hr{border:none;border-top:1px solid var(--line);margin:15px 0;}
-.bubble.bot a{color:var(--agent-2);}
-.hero{margin:auto;max-width:440px;text-align:center;padding:30px 16px;}
-.hero .badge-lg{
-  width:64px;height:64px;border-radius:19px;margin:0 auto 18px;
-  background:linear-gradient(135deg,var(--agent),var(--agent-2));
-  display:grid;place-items:center;color:#fff;font-family:'Unbounded';font-weight:700;font-size:28px;
-  box-shadow:0 12px 34px var(--agent-soft);
-}
-.hero h2{font-family:'Unbounded';font-weight:700;font-size:23px;margin:0 0 10px;letter-spacing:-.02em;}
-.hero p{color:var(--ink-soft);font-size:14.5px;line-height:1.6;margin:0 0 22px;}
+.bubble.bot a{color:var(--agent);}
+.hero{margin:auto;max-width:460px;text-align:center;padding:26px 16px;}
+.hero .badge-lg{width:62px;height:62px;border-radius:18px;margin:0 auto 18px;background:linear-gradient(135deg,var(--agent),var(--agent-2));display:grid;place-items:center;color:#fff;font-family:'Unbounded';font-weight:700;font-size:27px;box-shadow:0 12px 34px var(--agent-soft);transition:background .4s;}
+.hero h2{font-family:'Unbounded';font-weight:700;font-size:22px;margin:0 0 10px;letter-spacing:-.02em;}
+.hero p{color:var(--ink-soft);font-size:14px;line-height:1.6;margin:0 0 22px;}
 .chips{display:flex;flex-direction:column;gap:9px;}
-.chip{
-  background:var(--panel);border:1px solid var(--line);color:var(--ink);
-  padding:13px 16px;border-radius:13px;font-size:14px;cursor:pointer;text-align:left;
-  transition:border-color .15s,transform .08s,background .15s;
-}
+.chip{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:13px 16px;border-radius:13px;font-size:14px;cursor:pointer;text-align:left;transition:border-color .15s,transform .08s,background .15s;}
 .chip:hover{border-color:var(--agent);background:var(--panel-2);transform:translateY(-1px);}
 .typing{display:inline-flex;gap:5px;align-items:center;padding:3px 0;}
 .typing span{width:7px;height:7px;border-radius:50%;background:var(--agent);animation:blink 1.2s infinite;}
@@ -121,21 +99,11 @@ main{flex:1;overflow-y:auto;padding:26px 16px;}
 .typing span:nth-child(3){animation-delay:.4s;}
 @keyframes blink{0%,60%,100%{opacity:.25;}30%{opacity:1;}}
 footer{flex:none;border-top:1px solid var(--line);background:rgba(255,255,255,.72);backdrop-filter:blur(12px);padding:14px 16px;}
-.composer{max-width:720px;margin:0 auto;display:flex;gap:11px;align-items:flex-end;
-  background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:7px 7px 7px 16px;
-  box-shadow:0 2px 10px rgba(0,0,0,.04);transition:border-color .15s;}
+.composer{max-width:720px;margin:0 auto;display:flex;gap:11px;align-items:flex-end;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:7px 7px 7px 16px;box-shadow:0 2px 10px rgba(0,0,0,.04);transition:border-color .15s;}
 .composer:focus-within{border-color:var(--agent);}
-textarea{
-  flex:1;resize:none;border:none;background:transparent;color:var(--ink);
-  font-size:15px;font-family:inherit;line-height:1.5;max-height:150px;
-  outline:none;padding:7px 0;
-}
+textarea{flex:1;resize:none;border:none;background:transparent;color:var(--ink);font-size:15px;font-family:inherit;line-height:1.5;max-height:150px;outline:none;padding:7px 0;}
 textarea::placeholder{color:var(--ink-soft);}
-.send{
-  flex:none;width:42px;height:42px;border:none;border-radius:13px;
-  background:linear-gradient(135deg,var(--agent),var(--agent-2));color:#fff;cursor:pointer;
-  display:grid;place-items:center;transition:opacity .15s,transform .06s;
-}
+.send{flex:none;width:42px;height:42px;border:none;border-radius:13px;background:linear-gradient(135deg,var(--agent),var(--agent-2));color:#fff;cursor:pointer;display:grid;place-items:center;transition:opacity .15s,transform .06s,background .4s;}
 .send svg{width:19px;height:19px;}
 .send:active{transform:scale(.92);}
 .send:disabled{opacity:.4;cursor:default;}
@@ -144,26 +112,17 @@ textarea::placeholder{color:var(--ink-soft);}
 </head>
 <body>
 <header>
-  <div class="badge">Э</div>
+  <div class="badge" id="hBadge">Э</div>
   <div class="head">
-    <h1>Экзаменатор</h1>
-    <p><span class="dot"></span>Готов помочь с экзаменом</p>
+    <h1 id="hName">Экзаменатор</h1>
+    <p><span class="dot"></span><span id="hStatus">Готов помочь с экзаменом</span></p>
   </div>
 </header>
 
+<div class="switcher" id="switcher"></div>
+
 <main id="main">
-  <div class="wrap" id="wrap">
-    <div class="hero" id="hero">
-      <div class="badge-lg">Э</div>
-      <h2>Разберём любой билет</h2>
-      <p>Объясню тему на понимание, соберу каркас устного ответа и проверю, готов ли ты. Не сдаю за тебя — готовлю к экзамену.</p>
-      <div class="chips">
-        <div class="chip" onclick="useChip(this)">Разбери билет «Первый закон Ньютона»</div>
-        <div class="chip" onclick="useChip(this)">Объясни простыми словами теорему Пифагора</div>
-        <div class="chip" onclick="useChip(this)">Поэкзаменуй меня по теме «Клеточное деление»</div>
-      </div>
-    </div>
-  </div>
+  <div class="wrap" id="wrap"></div>
 </main>
 
 <footer>
@@ -173,16 +132,76 @@ textarea::placeholder{color:var(--ink-soft);}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
     </button>
   </div>
-  <div class="hint">Экзаменатор готовит к экзамену, а не сдаёт за тебя. Проверяй важные факты.</div>
+  <div class="hint" id="hint">Экзаменатор готовит к экзамену, а не сдаёт за тебя. Проверяй важные факты.</div>
 </footer>
 
 <script>
+const AGENTS = {
+  ekzamenator: {
+    letter:"Э", name:"Экзаменатор", status:"Готов помочь с экзаменом",
+    color:"#f0561f", color2:"#ff7a3d", soft:"rgba(240,86,31,.10)", userBg:"#fff1ea",
+    heroTitle:"Разберём любой билет",
+    heroText:"Объясню тему на понимание, соберу каркас устного ответа и проверю, готов ли ты. Не сдаю за тебя — готовлю к экзамену.",
+    hint:"Экзаменатор готовит к экзамену, а не сдаёт за тебя. Проверяй важные факты.",
+    chips:["Разбери билет «Первый закон Ньютона»","Объясни простыми словами теорему Пифагора","Поэкзаменуй меня по теме «Клеточное деление»"]
+  },
+  repetitor: {
+    letter:"Я", name:"Языковой репетитор", status:"Поможет с языком",
+    color:"#1f9d6b", color2:"#37c98e", soft:"rgba(31,157,107,.10)", userBg:"#e9f9f1",
+    heroTitle:"Подтянем язык без страха",
+    heroText:"По умолчанию немецкий, объясняю по-русски. Разберу грамматику, исправлю ошибки с объяснением, помогу собрать устный ответ. Рядом со мной не страшно ошибаться.",
+    hint:"Языковой репетитор готовит к экзамену и учит понимать, а не сдаёт за тебя.",
+    chips:["Проверь фразу: Ich habe ins Kino gegangen","Объясни, когда в немецком sein, а когда haben","Помоги собрать устный рассказ о себе на немецком"]
+  }
+};
+
+let current = "ekzamenator";
 const wrap=document.getElementById("wrap");
 const main=document.getElementById("main");
 const input=document.getElementById("message");
 const sendBtn=document.getElementById("send");
+const switcher=document.getElementById("switcher");
 let busy=false;
 marked.setOptions({breaks:true,gfm:true});
+
+function applyTheme(a){
+  const r=document.documentElement.style;
+  r.setProperty("--agent",a.color);
+  r.setProperty("--agent-2",a.color2);
+  r.setProperty("--agent-soft",a.soft);
+  r.setProperty("--user",a.userBg);
+  document.getElementById("hBadge").textContent=a.letter;
+  document.getElementById("hName").textContent=a.name;
+  document.getElementById("hStatus").textContent=a.status;
+  document.getElementById("hint").textContent=a.hint;
+}
+
+function renderTabs(){
+  switcher.innerHTML="";
+  Object.entries(AGENTS).forEach(([key,a])=>{
+    const t=document.createElement("div");
+    t.className="tab"+(key===current?" active":"");
+    t.style.setProperty("--tab-color",a.color);
+    t.style.setProperty("--tab-soft",a.soft);
+    t.innerHTML='<span class="ic" style="background:linear-gradient(135deg,'+a.color+','+a.color2+')">'+a.letter+'</span>'+a.name;
+    t.onclick=()=>switchAgent(key);
+    switcher.appendChild(t);
+  });
+}
+
+function renderHero(){
+  const a=AGENTS[current];
+  wrap.innerHTML='<div class="hero" id="hero"><div class="badge-lg">'+a.letter+'</div><h2>'+a.heroTitle+'</h2><p>'+a.heroText+'</p><div class="chips">'+
+    a.chips.map(c=>'<div class="chip" onclick="useChip(this)">'+c+'</div>').join("")+'</div></div>';
+}
+
+function switchAgent(key){
+  if(key===current||busy)return;
+  current=key;
+  applyTheme(AGENTS[key]);
+  renderTabs();
+  renderHero();
+}
 
 input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,150)+"px";});
 input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
@@ -197,8 +216,9 @@ function addUser(text){
   row.appendChild(b);wrap.appendChild(row);scrollDown();
 }
 function addBot(typing){
+  const a=AGENTS[current];
   const row=document.createElement("div");row.className="row bot";
-  const av=document.createElement("div");av.className="mini";av.textContent="Э";
+  const av=document.createElement("div");av.className="mini";av.textContent=a.letter;
   const b=document.createElement("div");b.className="bubble bot";
   if(typing)b.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
   row.appendChild(av);row.appendChild(b);wrap.appendChild(row);scrollDown();return b;
@@ -210,13 +230,17 @@ async function send(){
   busy=true;sendBtn.disabled=true;
   const bubble=addBot(true);
   try{
-    const res=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text})});
+    const res=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,agent:current})});
     const data=await res.json();
     if(data.reply)bubble.innerHTML=marked.parse(data.reply);
     else bubble.innerHTML='<p>'+(data.error||"Пустой ответ")+'</p>';
   }catch(err){bubble.innerHTML='<p>Не получилось связаться с сервером: '+err.message+'</p>';}
   finally{busy=false;sendBtn.disabled=false;scrollDown();input.focus();}
 }
+
+applyTheme(AGENTS[current]);
+renderTabs();
+renderHero();
 </script>
 </body>
 </html>
