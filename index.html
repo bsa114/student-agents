@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --agent: #f0561f;
@@ -107,6 +108,8 @@ textarea::placeholder{color:var(--ink-soft);}
 .send svg{width:19px;height:19px;}
 .send:active{transform:scale(.92);}
 .send:disabled{opacity:.4;cursor:default;}
+.excel-btn{display:inline-flex;align-items:center;gap:7px;margin:4px 0 6px;padding:8px 13px;border:1px solid var(--line);border-radius:11px;background:var(--panel-2);color:var(--agent);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s;}
+.excel-btn:hover{border-color:var(--agent);background:var(--agent-soft);}
 .hint{max-width:720px;margin:8px auto 0;font-size:11px;color:var(--ink-soft);text-align:center;}
 </style>
 </head>
@@ -152,6 +155,14 @@ const AGENTS = {
     heroText:"По умолчанию немецкий, объясняю по-русски. Разберу грамматику, исправлю ошибки с объяснением, помогу собрать устный ответ. Рядом со мной не страшно ошибаться.",
     hint:"Языковой репетитор готовит к экзамену и учит понимать, а не сдаёт за тебя.",
     chips:["Проверь фразу: Ich habe ins Kino gegangen","Объясни, когда в немецком sein, а когда haben","Помоги собрать устный рассказ о себе на немецком"]
+  },
+  analitik: {
+    letter:"А", name:"Аналитик списков", status:"Разберёт список в таблицу",
+    color:"#2563c9", color2:"#4f8cf0", soft:"rgba(37,99,201,.10)", userBg:"#eaf1fd",
+    heroTitle:"Список — в понятную таблицу",
+    heroText:"Дай сырой список — классифицирую, сведу в таблицу, посчитаю и покажу, что в данных видно. Под таблицей будет кнопка «Скачать Excel». Ничего не выдумываю — работаю по тому, что есть.",
+    hint:"Аналитик работает строго по данным списка — пустая клетка честнее придуманной.",
+    chips:["Разбери список: Аня—маркетинг, Борис—разработка, Вика—маркетинг, Гена—разработка, Даша—продажи","Сгруппируй и посчитай по отделам","Найди дубли и пропуски в этом списке"]
   }
 };
 
@@ -223,6 +234,28 @@ function addBot(typing){
   if(typing)b.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
   row.appendChild(av);row.appendChild(b);wrap.appendChild(row);scrollDown();return b;
 }
+
+function addExcelButtons(container){
+  if(typeof XLSX==="undefined")return;
+  const tables=container.querySelectorAll("table");
+  tables.forEach((tbl,idx)=>{
+    const btn=document.createElement("button");
+    btn.className="excel-btn";
+    btn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Скачать Excel';
+    btn.onclick=()=>downloadTableAsExcel(tbl);
+    tbl.insertAdjacentElement("afterend",btn);
+  });
+}
+function downloadTableAsExcel(tbl){
+  try{
+    const wb=XLSX.utils.table_to_book(tbl,{sheet:"Данные"});
+    const stamp=new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb,"analiz_"+stamp+".xlsx");
+  }catch(e){
+    alert("Не удалось собрать файл: "+e.message);
+  }
+}
+
 async function send(){
   if(busy)return;
   const text=input.value.trim();if(!text)return;
@@ -232,7 +265,7 @@ async function send(){
   try{
     const res=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,agent:current})});
     const data=await res.json();
-    if(data.reply)bubble.innerHTML=marked.parse(data.reply);
+    if(data.reply){bubble.innerHTML=marked.parse(data.reply);addExcelButtons(bubble);}
     else bubble.innerHTML='<p>'+(data.error||"Пустой ответ")+'</p>';
   }catch(err){bubble.innerHTML='<p>Не получилось связаться с сервером: '+err.message+'</p>';}
   finally{busy=false;sendBtn.disabled=false;scrollDown();input.focus();}
