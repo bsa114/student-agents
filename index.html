@@ -110,6 +110,10 @@ textarea::placeholder{color:var(--ink-soft);}
 .send:disabled{opacity:.4;cursor:default;}
 .excel-btn{display:inline-flex;align-items:center;gap:7px;margin:4px 0 6px;padding:8px 13px;border:1px solid var(--line);border-radius:11px;background:var(--panel-2);color:var(--agent);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s;}
 .excel-btn:hover{border-color:var(--agent);background:var(--agent-soft);}
+.msg-actions{display:flex;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid var(--line);}
+.act-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink-soft);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:border-color .15s,color .15s,background .15s;}
+.act-btn:hover{border-color:var(--agent);color:var(--agent);background:var(--agent-soft);}
+.act-btn.done{color:var(--agent);border-color:var(--agent);}
 .hint{max-width:720px;margin:8px auto 0;font-size:11px;color:var(--ink-soft);text-align:center;}
 </style>
 </head>
@@ -246,14 +250,44 @@ function addExcelButtons(container){
     tbl.insertAdjacentElement("afterend",btn);
   });
 }
+function pad2(n){return String(n).padStart(2,"0");}
+function stampDateTime(){
+  const d=new Date();
+  const date=d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+  const time=pad2(d.getHours())+"-"+pad2(d.getMinutes());
+  return date+"_"+time;
+}
 function downloadTableAsExcel(tbl){
   try{
     const wb=XLSX.utils.table_to_book(tbl,{sheet:"Данные"});
-    const stamp=new Date().toISOString().slice(0,10);
-    XLSX.writeFile(wb,"analiz_"+stamp+".xlsx");
+    XLSX.writeFile(wb,"analiz_"+stampDateTime()+".xlsx");
   }catch(e){
     alert("Не удалось собрать файл: "+e.message);
   }
+}
+
+function addCopyButton(bubble,rawText){
+  const bar=document.createElement("div");
+  bar.className="msg-actions";
+  const btn=document.createElement("button");
+  btn.className="act-btn";
+  const copyIcon='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+  const okIcon='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  btn.innerHTML=copyIcon+' Скопировать';
+  btn.onclick=async()=>{
+    try{
+      await navigator.clipboard.writeText(rawText);
+    }catch(e){
+      const ta=document.createElement("textarea");ta.value=rawText;document.body.appendChild(ta);ta.select();
+      try{document.execCommand("copy");}catch(_){}
+      document.body.removeChild(ta);
+    }
+    btn.classList.add("done");
+    btn.innerHTML=okIcon+' Скопировано';
+    setTimeout(()=>{btn.classList.remove("done");btn.innerHTML=copyIcon+' Скопировать';},1800);
+  };
+  bar.appendChild(btn);
+  bubble.appendChild(bar);
 }
 
 async function send(){
@@ -265,7 +299,7 @@ async function send(){
   try{
     const res=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,agent:current})});
     const data=await res.json();
-    if(data.reply){bubble.innerHTML=marked.parse(data.reply);addExcelButtons(bubble);}
+    if(data.reply){bubble.innerHTML=marked.parse(data.reply);addExcelButtons(bubble);addCopyButton(bubble,data.reply);}
     else bubble.innerHTML='<p>'+(data.error||"Пустой ответ")+'</p>';
   }catch(err){bubble.innerHTML='<p>Не получилось связаться с сервером: '+err.message+'</p>';}
   finally{busy=false;sendBtn.disabled=false;scrollDown();input.focus();}
