@@ -138,6 +138,13 @@ textarea::placeholder{color:var(--ink-soft);}
 </style>
 </head>
 <body>
+<div class="drop-overlay" id="dropOverlay">
+  <div class="drop-card">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+    <div class="big">Отпусти файл сюда</div>
+    <div class="sub">фото, скан, docx или PDF</div>
+  </div>
+</div>
 <header>
   <div class="badge" id="hBadge">Э</div>
   <div class="head">
@@ -450,18 +457,17 @@ async function send(){
 
 // ===== Перетаскивание файлов (drag & drop) =====
 (function(){
-  const overlay=document.getElementById("dropOverlay");
   let depth=0;
+  function ov(){ return document.getElementById("dropOverlay"); }
   function hasFiles(e){ return e.dataTransfer && Array.from(e.dataTransfer.types||[]).includes("Files"); }
-  window.addEventListener("dragenter",e=>{ if(!hasFiles(e))return; e.preventDefault(); depth++; overlay.classList.add("show"); });
+  window.addEventListener("dragenter",e=>{ if(!hasFiles(e))return; e.preventDefault(); depth++; const o=ov(); if(o)o.classList.add("show"); });
   window.addEventListener("dragover",e=>{ if(!hasFiles(e))return; e.preventDefault(); });
-  window.addEventListener("dragleave",e=>{ if(!hasFiles(e))return; depth--; if(depth<=0){depth=0;overlay.classList.remove("show");} });
+  window.addEventListener("dragleave",e=>{ if(!hasFiles(e))return; depth--; if(depth<=0){depth=0; const o=ov(); if(o)o.classList.remove("show");} });
   window.addEventListener("drop",e=>{
     if(!hasFiles(e))return;
-    e.preventDefault(); depth=0; overlay.classList.remove("show");
+    e.preventDefault(); depth=0; const o=ov(); if(o)o.classList.remove("show");
     const file=e.dataTransfer.files && e.dataTransfer.files[0];
     if(!file)return;
-    // переиспользуем существующий обработчик: подставляем файл во input и зовём ту же логику
     onFilePicked({ target: { files: [file] } });
   });
 })();
@@ -470,12 +476,5 @@ applyTheme(AGENTS[current]);
 renderTabs();
 renderHero();
 </script>
-<div class="drop-overlay" id="dropOverlay">
-  <div class="drop-card">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-    <div class="big">Отпусти файл сюда</div>
-    <div class="sub">фото, скан, docx или PDF</div>
-  </div>
-</div>
 </body>
 </html>
