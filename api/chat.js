@@ -37,7 +37,7 @@ export default async function handler(request, response) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "MODEL_PLACEHOLDER",
+        model: "qwen/qwen3.6-plus",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: message },
